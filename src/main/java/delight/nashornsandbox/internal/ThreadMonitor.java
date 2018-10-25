@@ -114,23 +114,23 @@ public class ThreadMonitor {
 					}
 					return;
 				} else {
-					
+                    synchronized (monitor) {
+                        long waitTime = getCheckInterval(runtime);
+
+                        if (waitTime == 0) {
+                            waitTime = 1;
+                        }
+                        if (!stop.get() ) {
+                            monitor.wait(waitTime);
+                        }
+                    }
+
 				}
-				synchronized (monitor) {
-					long waitTime = getCheckInterval(runtime);
-					
-					if (waitTime == 0) {
-						waitTime = 1;
-					}
-					monitor.wait(waitTime);
-				}
-				
 			}
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
-
 	private long getCheckInterval(final long runtime) {
 		if (maxCPUTime == 0) {
 			return 10;
