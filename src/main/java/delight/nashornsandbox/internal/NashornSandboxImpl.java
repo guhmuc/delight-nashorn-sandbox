@@ -155,6 +155,52 @@ public class NashornSandboxImpl implements NashornSandbox {
 		return executeSandboxedOperation(op);
 	}
 
+    @Override
+    public CompiledScript compile(final String js) throws ScriptException {
+        if (!engineAsserted) {
+            engineAsserted = true;
+            assertScriptEngine();
+        }
+
+        final JsSanitizer sanitizer = getSanitizer();
+        final String securedJs = sanitizer.secureJs(js);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("--- Compiling JS ---");
+            LOG.debug(securedJs);
+            LOG.debug("--- JS END ---");
+        }
+        return scriptEngine.compile(securedJs);
+    }
+
+    @Override
+    public Object evalCompiled(final CompiledScript cs) throws ScriptException {
+        return evalCompiled(cs, null, null);
+    }
+
+    @Override
+    public Object evalCompiled(final CompiledScript cs, final Bindings bindings) throws ScriptCPUAbuseException, ScriptException {
+        return evalCompiled(cs,null, bindings);
+    }
+
+    @Override
+    public Object evalCompiled(final CompiledScript cs, final ScriptContext scriptContext) throws ScriptCPUAbuseException, ScriptException {
+        return evalCompiled(cs, scriptContext,null);
+    }
+
+    @Override
+    public Object evalCompiled(final CompiledScript cs, final ScriptContext scriptContext, final Bindings bindings)
+        throws ScriptException {
+
+        if (!engineAsserted) {
+            engineAsserted = true;
+            assertScriptEngine();
+        }
+
+        final ScriptEngineOperation op = new EvaluateCompiledOperation(cs, scriptContext,bindings);
+        return executeSandboxedOperation(op);
+    }
+
 	private Object executeSandboxedOperation(ScriptEngineOperation op) throws ScriptCPUAbuseException, ScriptException {
 		if (!engineAsserted) {
 			engineAsserted = true;

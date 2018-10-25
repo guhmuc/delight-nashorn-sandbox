@@ -51,7 +51,7 @@ public interface NashornSandbox {
    * @param object the value, can be <code>null</code>
    */
   void inject(String variableName, Object object);
-  
+
   /**
    * Sets the maximum CPU time in milliseconds allowed for script execution.
    * <p>
@@ -155,8 +155,66 @@ public interface NashornSandbox {
    * @see #setMaxCPUTime(long)
    */
   Object eval(String js, ScriptContext scriptContext,Bindings bindings) throws ScriptCPUAbuseException, ScriptException;
-  
-  /**
+
+    /**
+     * Compiles the JavaScript string into a {@link CompiledScript} object for later evaluation.
+     * @param js the JavaScript script to be compiled
+     * @return the CompiledScript
+     * @throws ScriptException when script syntax error occurs
+     */
+  CompiledScript compile(String js) throws ScriptException;
+
+    /**
+     * Evaluates the CompiledScript
+     *
+     * @param cs the CompiledScript to be evaluated
+     * @throws ScriptCPUAbuseException when execution time exceeded (when greater
+     *      than 0 is set
+     * @throws ScriptException when any other error occurs during evaluation
+     * @see #setMaxCPUTime(long)
+     */
+  Object evalCompiled(CompiledScript cs) throws ScriptCPUAbuseException, ScriptException;
+
+    /**
+     * Evaluates the CompiledScript
+     *
+     * @param cs the CompiledScript to be evaluated
+     * @param bindings the Bindings to use for evaluation
+     * @throws ScriptCPUAbuseException when execution time exceeded (when greater
+     *      than 0 is set
+     * @throws ScriptException when any other error occurs during evaluation
+     * @see #setMaxCPUTime(long)
+     */
+  Object evalCompiled(CompiledScript cs, Bindings bindings) throws ScriptCPUAbuseException, ScriptException;
+
+    /**
+     * Evaluates the CompiledScript for a given script context
+     *
+     * @param cs the CompiledScript to be evaluated
+     * @param scriptContext the ScriptContext exposing sets of attributes in different scopes.
+     * @throws ScriptCPUAbuseException when execution time exceeded (when greater
+     *      than 0 is set
+     * @throws ScriptException when any other error occurs during evaluation
+     * @see #setMaxCPUTime(long)
+     */
+  Object evalCompiled(CompiledScript cs, ScriptContext scriptContext) throws ScriptCPUAbuseException, ScriptException;
+
+    /**
+     * Evaluates the CompiledScript for a given script context
+     *
+     * @param cs the CompiledScript to be evaluated
+     * @param bindings the Bindings to use for evaluation
+     * @param scriptContext the ScriptContext exposing sets of attributes in different scopes.
+     * @throws ScriptCPUAbuseException when execution time exceeded (when greater
+     *      than 0 is set
+     * @throws ScriptException when any other error occurs during evaluation
+     * @see #setMaxCPUTime(long)
+     */
+  Object evalCompiled(CompiledScript cs, ScriptContext scriptContext, Bindings bindings)
+        throws ScriptCPUAbuseException, ScriptException;
+
+
+    /**
    * Obtains the value of the specified JavaScript variable.
    */
   Object get(String variableName);
