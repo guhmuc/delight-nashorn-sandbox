@@ -4,11 +4,13 @@ import java.io.Writer;
 import java.util.concurrent.ExecutorService;
 
 import javax.script.Bindings;
+import javax.script.CompiledScript;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import jdk.nashorn.api.scripting.NashornScriptEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 
 	protected final SandboxClassFilter sandboxClassFilter;
 
-	protected final ScriptEngine scriptEngine;
+	protected final NashornScriptEngine scriptEngine;
 
 	/** Maximum CPU time in milliseconds. */
 	protected long maxCPUTime = 0L;
@@ -90,7 +92,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 			}
 		}
 		
-		this.scriptEngine = factory.getScriptEngine(params, this.getClass().getClassLoader(), this.sandboxClassFilter);
+		this.scriptEngine = (NashornScriptEngine)factory.getScriptEngine(params, this.getClass().getClassLoader(), this.sandboxClassFilter);
 		
 		this.allow(InterruptTest.class);
 	}

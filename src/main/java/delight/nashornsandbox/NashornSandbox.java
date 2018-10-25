@@ -4,6 +4,7 @@ import java.io.Writer;
 import java.util.concurrent.ExecutorService;
 
 import javax.script.Bindings;
+import javax.script.CompiledScript;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
@@ -63,8 +64,8 @@ public interface NashornSandbox {
    * @see #setExecutor(ExecutorService)
    */
   void setMaxCPUTime(long limit);
-  
-  /**
+
+    /**
    * Sets the maximum memory in Bytes which JS executor thread can allocate.
    * <p>
    *   Note, thread memory usage is only approximation.
