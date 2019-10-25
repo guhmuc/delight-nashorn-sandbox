@@ -13,6 +13,7 @@ import org.junit.Test;
 import delight.nashornsandbox.exceptions.ScriptCPUAbuseException;
 
 public class TestCustomCache {
+	
 	public static class CustomCache implements SecuredJsCache {
 
 		private boolean consulted = false;
@@ -46,4 +47,6 @@ public class TestCustomCache {
 		// method.
 		assertEquals("5;", cache.produced);
 	}
+
+	
 }

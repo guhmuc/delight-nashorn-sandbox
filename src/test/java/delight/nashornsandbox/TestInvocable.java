@@ -19,7 +19,7 @@ public class TestInvocable {
 		Invocable invocable = sandbox.getSandboxedInvocable();
 		assertEquals(1, invocable.invokeFunction("x"));
 	}
-
+	
 	@Test
 	public void testInvokeMethod() throws ScriptCPUAbuseException, ScriptException, NoSuchMethodException {
 		final NashornSandbox sandbox = NashornSandboxes.create();
@@ -30,5 +30,5 @@ public class TestInvocable {
 
 		assertEquals(3.0, invocable.invokeMethod(thisobj, "x", 2));
 	}
-
+	
 }

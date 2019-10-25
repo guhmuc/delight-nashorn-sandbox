@@ -17,6 +17,8 @@ public class TestExceptions {
     sandbox.eval("blah_blah_blah();");
   }
   
+  
+  
   @Test
   public void test_with_catch() {
     try {
@@ -32,6 +34,7 @@ public class TestExceptions {
     }
     Assert.fail("Exception not thrown!");
   }
+  
   
   @Test
   public void test_with_thread() {
@@ -50,6 +53,7 @@ public class TestExceptions {
     }
     Assert.fail("Exception not thrown!");
   }
+  
   
   @Test
   public void test_with_line_number() {
@@ -79,4 +83,5 @@ public class TestExceptions {
     }
     Assert.fail("Exception not thrown!");
   }
+  
 }

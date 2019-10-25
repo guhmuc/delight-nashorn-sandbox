@@ -7,11 +7,8 @@ import javax.script.ScriptException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import delight.nashornsandbox.NashornSandbox;
-import delight.nashornsandbox.NashornSandboxes;
 import delight.nashornsandbox.exceptions.ScriptCPUAbuseException;
 
-@SuppressWarnings("all")
 public class TestIfElse {
   @Test
   public void testIfElse() throws ScriptCPUAbuseException, ScriptException {
@@ -40,4 +37,6 @@ public class TestIfElse {
     Assert.assertEquals(Integer.valueOf(4), sandbox.eval("y"));
     sandbox.getExecutor().shutdown();
   }
+  
+  
 }

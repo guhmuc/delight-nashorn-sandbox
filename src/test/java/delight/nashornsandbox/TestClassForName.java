@@ -29,6 +29,7 @@ public class TestClassForName {
 		Assert.assertTrue(t instanceof ScriptException);
 	}
 	
+	
 	@Test
 	public void test_access_denied() throws Exception {
 		
@@ -53,4 +54,6 @@ public class TestClassForName {
 		Assert.assertTrue(t instanceof ScriptException);
 		
 	}
+
+	
 }

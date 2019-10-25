@@ -89,7 +89,7 @@ public class TestLimitCPU {
 	public void test_only_while_allowed_bad_script() throws ScriptCPUAbuseException, ScriptException {
 		final NashornSandbox sandbox = NashornSandboxes.create();
 		sandbox.setMaxCPUTime(50);
-		
+
 		sandbox.setExecutor(Executors.newSingleThreadExecutor());
 		try {
 			final String badScript = "while (true);\n";
@@ -222,4 +222,5 @@ public class TestLimitCPU {
 			sandbox.getExecutor().shutdown();
 		}
 	}
+
 }

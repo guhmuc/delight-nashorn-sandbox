@@ -2,7 +2,6 @@ package delight.nashornsandbox;
 
 import java.util.concurrent.Executors;
 
-import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
@@ -50,4 +49,6 @@ public class TestEvalWithScriptContextWithVariables {
     Assert.assertEquals(2, res2);
     
   }
+  
+  
 }

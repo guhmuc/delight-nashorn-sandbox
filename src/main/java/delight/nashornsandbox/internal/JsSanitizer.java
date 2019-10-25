@@ -5,11 +5,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ref.SoftReference;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +35,7 @@ import jdk.nashorn.api.scripting.ScriptObjectMirror;
  * @version $Id$
  */
 @SuppressWarnings("restriction")
-class JsSanitizer {
+public class JsSanitizer {
 	private static class PoisonPil {
 		Pattern pattern;
 		String replacement;
@@ -59,35 +61,36 @@ class JsSanitizer {
 
 	/**
 	 * The name of the JS function to be inserted into user script. To prevent
-	 * collisions random sufix is added.
+	 * collisions random suffix is added.
 	 */
 	final static String JS_INTERRUPTED_FUNCTION = "__if";
 
 	/**
 	 * The name of the variable which holds reference to interruption checking
-	 * class. To prevent collisions random sufix is added.
+	 * class. To prevent collisions random suffix is added.
 	 */
 	final static String JS_INTERRUPTED_TEST = "__it";
 
 	private final static List<PoisonPil> POISON_PILLS = Arrays.asList(
-			// every 10th statments ended with semicolon put intterupt checking function
-			new PoisonPil(Pattern.compile("(([^;]+;){9}[^;]+(?<!break|continue);)\\n"),
+			// every 10th statements ended with semicolon put interrupt checking function
+			new PoisonPil(Pattern.compile("(([^;]+;){9}[^;]+(?<!break|continue);\\n(?![\\W]*(\\/\\/.+[\\W]+)*else))"),
 					JS_INTERRUPTED_FUNCTION + "();\n"),
-			// every (except switch) block start brace put intterupt checking function
+			// every (except switch) block start brace put interrupt checking function
 			new PoisonPil(Pattern.compile("(\\s*for\\s*\\([^\\{]+\\)\\s*\\{)"), JS_INTERRUPTED_FUNCTION + "();"), // for
 																													// with
 																													// block
 			new PoisonPil(Pattern.compile("(\\s*for\\s*\\([^\\{]+\\)\\s*[^\\{]+;)"), JS_INTERRUPTED_FUNCTION + "();"), // for
 																														// without
-																														// block
-			new PoisonPil(Pattern.compile("(\\s*([^\"]?function[^\"])\\s*[^\\{]+\\{)"),
+																						// block
+			//
+			new PoisonPil(Pattern.compile("(\\s*([^\"]?function)\\s*[^\"}]*\\([^\\{]*\\)\\s*\\{)"),
 					JS_INTERRUPTED_FUNCTION + "();"), // function except when enclosed in quotes
 			new PoisonPil(Pattern.compile("(\\s*while\\s*\\([^\\{]+\\{)"), JS_INTERRUPTED_FUNCTION + "();"),
 			new PoisonPil(Pattern.compile("(\\s*do\\s*\\{)"), JS_INTERRUPTED_FUNCTION + "();"));
 
 	/**
 	 * The beautifier options. Don't change if you are not know what you are doing,
-	 * becouse regexps are dependend on it.
+	 * because regexps are depended on it.
 	 */
 	private final static Map<String, Object> BEAUTIFY_OPTIONS = new HashMap<>();
 
@@ -103,8 +106,8 @@ class JsSanitizer {
 
 	private final ScriptEngine scriptEngine;
 
-	/** JS beutify() function reference. */
-	private final ScriptObjectMirror jsBeautify;
+	/** JS beautify() function reference. */
+	private final Object jsBeautify;
 
 	private final SecuredJsCache securedJsCache;
 
@@ -136,12 +139,12 @@ class JsSanitizer {
 		}
 	}
 
-	private static ScriptObjectMirror getBeautifHandler(final ScriptEngine scriptEngine) {
+	private static Object getBeautifHandler(final ScriptEngine scriptEngine) {
 		try {
 			for (final String name : BEAUTIFY_FUNCTIONS) {
 				final Object somWindow = scriptEngine.eval(name);
 				if (somWindow != null) {
-					return (ScriptObjectMirror) somWindow;
+					return somWindow;
 				}
 			}
 			throw new RuntimeException("Cannot find function 'js_beautify' in: window, exports, global");
@@ -180,7 +183,7 @@ class JsSanitizer {
 	 * @param beautifiedJs
 	 *            evaluated script
 	 * @throws BracesException
-	 *             when baces are incorrect
+	 *             when braces are incorrect
 	 */
 	void checkBraces(final String beautifiedJs) throws BracesException {
 		if (allowNoBraces) {
@@ -197,7 +200,7 @@ class JsSanitizer {
 					line = beautifiedJs.charAt(index)+line;
 					index--;
 				}
-				
+
 				int singleParaCount = line.length() - line.replace("'", "").length();
 				int doubleParaCount = line.length() - line.replace("\"", "").length();
 				
@@ -241,7 +244,7 @@ class JsSanitizer {
 		}
 	}
 
-	String secureJs(final String js) throws ScriptException {
+	public String secureJs(final String js) throws ScriptException {
 		if (securedJsCache == null) {
 			return secureJsImpl(js);
 		}
@@ -274,15 +277,18 @@ class JsSanitizer {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	String beautifyJs(final String js) {
-		return (String) jsBeautify.call("beautify", js, BEAUTIFY_OPTIONS);
+		if (jsBeautify instanceof ScriptObjectMirror) return (String) ((ScriptObjectMirror) jsBeautify).call("beautify", js, BEAUTIFY_OPTIONS);
+		else if (jsBeautify instanceof Function<?, ?>) return (String) ((Function<Object[], Object>) jsBeautify).apply(new Object[] { js, BEAUTIFY_OPTIONS });
+		else throw new RuntimeException("Unsupported handler type for jsBeautify: " + jsBeautify.getClass().getName());
 	}
 
 	private static String getBeautifyJs() {
 		String script = beautifysScript.get();
 		if (script == null) {
 			try (final BufferedReader reader = new BufferedReader(new InputStreamReader(
-					new BufferedInputStream(JsSanitizer.class.getResourceAsStream(BEAUTIFY_JS)), "UTF-8"))) {
+					new BufferedInputStream(JsSanitizer.class.getResourceAsStream(BEAUTIFY_JS)), StandardCharsets.UTF_8))) {
 				final StringBuilder sb = new StringBuilder();
 				String line;
 				while ((line = reader.readLine()) != null) {

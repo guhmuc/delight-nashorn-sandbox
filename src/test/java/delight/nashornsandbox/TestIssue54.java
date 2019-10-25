@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import delight.nashornsandbox.exceptions.ScriptCPUAbuseException;
-import delight.nashornsandbox.internal.InterruptTest;
 
 public class TestIssue54 {
 
@@ -25,15 +24,14 @@ public class TestIssue54 {
 		sandbox.disallowAllClasses();
 
 		try {
-		    ExecutorService executor = Executors.newSingleThreadExecutor();
-		    sandbox.setExecutor(executor);
-		    sandbox.eval(js);
-		    sandbox.getExecutor().shutdown();
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			sandbox.setExecutor(executor);
+			sandbox.eval(js);
+			sandbox.getExecutor().shutdown();
 		} catch (final Exception e) {
-		    Assert.assertEquals(e.getClass(), ScriptCPUAbuseException.class);
+			Assert.assertEquals(ScriptCPUAbuseException.class, e.getClass());
 		}
 
-
 	}
-	
+
 }

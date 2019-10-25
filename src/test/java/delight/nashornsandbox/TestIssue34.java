@@ -81,6 +81,8 @@ public class TestIssue34 {
 		Assert.assertTrue(ex instanceof BracesException);
 
 	}
+	
+	
 
 	@Test
 	public void testIssue34_Scenario3() throws ScriptCPUAbuseException, ScriptException {
@@ -93,6 +95,8 @@ public class TestIssue34 {
 		Assert.assertTrue(logger.getOutput().contains("loop cnt=6"));
 
 	}
+	
+	
 	
 	@Test
 	public void testIssue34_Scenario3_2() throws ScriptCPUAbuseException, ScriptException {
@@ -111,6 +115,8 @@ public class TestIssue34 {
 
 	}
 	
+	
+	
 	@Test
 	public void testIssue34_Scenario4()  {
 		String js = "";
@@ -127,6 +133,8 @@ public class TestIssue34 {
 		Assert.assertTrue(ex instanceof IllegalArgumentException);
 
 	}
+	
+	
 
 	@Test
 	public void testIssue34_Scenario5() {
@@ -149,6 +157,8 @@ public class TestIssue34 {
 		Assert.assertTrue(ex instanceof ScriptCPUAbuseException);
 
 	}
+	
+	
 
 	@After
 	public void tearDown() {

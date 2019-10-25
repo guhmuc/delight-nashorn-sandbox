@@ -1,5 +1,6 @@
 package delight.nashornsandbox.internal;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ import jdk.nashorn.api.scripting.ClassFilter;
  * @version $Id$
  */
 @SuppressWarnings("restriction")
-class SandboxClassFilter implements ClassFilter {
+public class SandboxClassFilter implements ClassFilter {
   private final Set<Class<?>> allowed;
   private final Set<String> stringCache;
   
@@ -49,4 +50,7 @@ class SandboxClassFilter implements ClassFilter {
     stringCache = new HashSet<>();
   }
   
+  public Set<String> getStringCache() {
+	  return Collections.unmodifiableSet(stringCache);
+  }
 }

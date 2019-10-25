@@ -4,8 +4,6 @@ import javax.script.ScriptException;
 
 import org.junit.Test;
 
-import delight.nashornsandbox.NashornSandbox;
-import delight.nashornsandbox.NashornSandboxes;
 import delight.nashornsandbox.exceptions.ScriptCPUAbuseException;
 
 @SuppressWarnings("all")
@@ -19,4 +17,6 @@ public class TestGlobalVariable {
     sandbox.allow(Class.class);
     sandbox.eval("fromJava.toString();");
   }
+  
+  
 }

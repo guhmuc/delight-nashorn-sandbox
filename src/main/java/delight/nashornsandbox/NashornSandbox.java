@@ -1,5 +1,6 @@
 package delight.nashornsandbox;
 
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.concurrent.ExecutorService;
 
@@ -52,7 +53,7 @@ public interface NashornSandbox {
    * @param object the value, can be <code>null</code>
    */
   void inject(String variableName, Object object);
-
+  
   /**
    * Sets the maximum CPU time in milliseconds allowed for script execution.
    * <p>
@@ -60,20 +61,24 @@ public interface NashornSandbox {
    *   than 0.
    * </p>
    *
-   * @param limit time limit in miliseconds
+   * @param limit time limit in milliseconds
    * @see #setExecutor(ExecutorService)
    */
   void setMaxCPUTime(long limit);
-
-    /**
-   * Sets the maximum memory in Bytes which JS executor thread can allocate.
+  
+  /**
+   * <p>
+   *   Sets the maximum memory in Bytes which JS executor thread can allocate.
+   * </p>
    * <p>
    *   Note, thread memory usage is only approximation.
    * </p>
    * <p>
    *   Note, {@link ExecutorService} should be also set when memory limit is set
    *   greater than 0. Nashorn takes some memory at start, be generous and give
-   *   at least 1MB.
+   *   at least 1MB. If bindings are used, Nashorn allocates additional memory
+   *   for the bindings which might be a multiple of the memory theoretically
+   *   required by the data types used. For details, see <a href='https://github.com/javadelight/delight-nashorn-sandbox/issues/86'>issue 86</a>.
    * </p>
    * <p>
    *   Current implementation of this limit works only on Sun/Oracle JVM.
@@ -85,10 +90,10 @@ public interface NashornSandbox {
   void setMaxMemory(long limit);
   
   /**
-   * Sets the writer, whem want to have output from writer function called in
+   * Sets the writer, when want to have output from writer function called in
    * JS script
    * 
-   * @param writer the writer, eg. {@ling StringWriter}
+   * @param writer the writer, eg. {@link StringWriter}
    */
   void setWriter(Writer writer);
   
@@ -247,7 +252,7 @@ public interface NashornSandbox {
   /**
    * Allow Nashorn quit and exit functions.
    * <p>
-   *   Only before first {@link #eval(String)} call cause efect.
+   *   Only before first {@link #eval(String)} call cause effect.
    * </p>
    */
   void allowExitFunctions(boolean v);
@@ -280,7 +285,7 @@ public interface NashornSandbox {
    *   which make JVM unstable.
    * </p>
    * <p>
-   *   Properly writen code (even in bad intention) like:
+   *   Properly written code (even in bad intention) like:
    *   <pre>
    *     while(true) { while(true) {
    *       // do nothing
@@ -311,7 +316,7 @@ public interface NashornSandbox {
    * <p>
    *   Each statements when {@link #setMaxCPUTime(long)} is set is prepared to
    *   quit itself when time exceeded. To execute only once this procedure per
-   *   statment set this value.
+   *   statement set this value.
    * </p>
    * <p>
    *   When {@link #setMaxCPUTime(long)} is set 0, this value is ignored.

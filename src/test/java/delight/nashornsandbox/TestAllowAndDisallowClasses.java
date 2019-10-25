@@ -12,6 +12,7 @@ import delight.nashornsandbox.exceptions.ScriptCPUAbuseException;
 
 @SuppressWarnings("all")
 public class TestAllowAndDisallowClasses {
+
   @Test
   public void test_file() throws ScriptCPUAbuseException, ScriptException {
     final NashornSandbox sandbox = NashornSandboxes.create();
@@ -43,4 +44,6 @@ public class TestAllowAndDisallowClasses {
       }
     }
   }
+
+  
 }
