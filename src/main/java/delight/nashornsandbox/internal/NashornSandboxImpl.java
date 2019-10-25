@@ -7,7 +7,6 @@ import javax.script.Bindings;
 import javax.script.CompiledScript;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 import jdk.nashorn.api.scripting.NashornScriptEngine;
@@ -175,6 +174,19 @@ public class NashornSandboxImpl implements NashornSandbox {
         return scriptEngine.compile(securedJs);
     }
 
+    public CompiledScript compilePrivileged(final String js) throws ScriptException {
+
+        final JsSanitizer sanitizer = getSanitizer();
+        final String securedJs = sanitizer.secureJs(js);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("--- Compiling P JS ---");
+            LOG.debug(securedJs);
+            LOG.debug("--- JS END ---");
+        }
+        return scriptEngine.compile(securedJs);
+    }
+
     @Override
     public Object evalCompiled(final CompiledScript cs) throws ScriptException {
         return evalCompiled(cs, null, null);
@@ -203,11 +215,22 @@ public class NashornSandboxImpl implements NashornSandbox {
         return executeSandboxedOperation(op);
     }
 
-	private Object executeSandboxedOperation(ScriptEngineOperation op) throws ScriptCPUAbuseException, ScriptException {
-		if (!engineAsserted) {
-			engineAsserted = true;
-			assertScriptEngine();
-		}
+    public Object evalCompiledPrivileged(final CompiledScript cs, final ScriptContext scriptContext, final Bindings bindings)
+        throws ScriptException {
+
+        final ScriptEngineOperation op = new EvaluateCompiledOperation(cs, scriptContext,bindings);
+        return executeSandboxedOperationPrivileged(op);
+    }
+
+    private Object executeSandboxedOperation(ScriptEngineOperation op) throws ScriptCPUAbuseException, ScriptException {
+        if (!engineAsserted) {
+            engineAsserted = true;
+            assertScriptEngine();
+        }
+        return executeSandboxedOperationPrivileged(op);
+    }
+
+    private Object executeSandboxedOperationPrivileged(ScriptEngineOperation op) throws ScriptCPUAbuseException, ScriptException {
 		try {
 			if (maxCPUTime == 0 && maxMemory == 0) {
 				return op.executeScriptEngineOperation(scriptEngine);
