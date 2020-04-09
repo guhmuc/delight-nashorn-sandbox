@@ -5,7 +5,7 @@
 
 	<groupId>org.javadelight</groupId>
 	<artifactId>delight-nashorn-sandbox</artifactId>
-	<version>0.1.26</version>
+	<version>0.1.29-SNAPSHOT</version>
 	<description>A safe sandbox to execute JavaScript code from Nashorn.</description>
 	<url>https://github.com/javadelight/delight-nashorn-sandbox</url>
 
@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>js-beautify</artifactId>
-			<version>1.6.12</version>
+			<version>1.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
