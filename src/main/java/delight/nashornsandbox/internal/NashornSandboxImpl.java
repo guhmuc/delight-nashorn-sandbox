@@ -4,7 +4,6 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
@@ -224,7 +223,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 		}
 		final Bindings securedBindings = secureBindings(bindings);
 		EvaluateOperation op = new EvaluateOperation(securedJs, scriptContext, securedBindings);
-		return executeSandboxedOperation(op);
+		return executeSandboxedOperationAsserted(op);
 	}
 
 	protected Bindings secureBindings(Bindings bindings) {
@@ -256,18 +255,18 @@ public class NashornSandboxImpl implements NashornSandbox {
         return ((NashornScriptEngine)scriptEngine).compile(securedJs);
     }
 
-    public CompiledScript compilePrivileged(final String js) throws ScriptException {
-
-        final JsSanitizer sanitizer = getSanitizer();
-        final String securedJs = sanitizer.secureJs(js);
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("--- Compiling P JS ---");
-            LOG.debug(securedJs);
-            LOG.debug("--- JS END ---");
-        }
-        return ((NashornScriptEngine)scriptEngine).compile(securedJs);
-    }
+//    public CompiledScript compilePrivileged(final String js) throws ScriptException {
+//
+//        final JsSanitizer sanitizer = getSanitizer();
+//        final String securedJs = sanitizer.secureJs(js);
+//
+//        if (LOG.isDebugEnabled()) {
+//            LOG.debug("--- Compiling P JS ---");
+//            LOG.debug(securedJs);
+//            LOG.debug("--- JS END ---");
+//        }
+//        return ((NashornScriptEngine)scriptEngine).compile(securedJs);
+//    }
 
     @Override
     public Object evalCompiled(final CompiledScript cs) throws ScriptException {
@@ -293,26 +292,25 @@ public class NashornSandboxImpl implements NashornSandbox {
         }
 
         final ScriptEngineOperation op = new EvaluateCompiledOperation(cs, scriptContext,bindings);
-        return executeSandboxedOperation(op);
+        return executeSandboxedOperationAsserted(op);
     }
 
-    public Object evalCompiledPrivileged(final CompiledScript cs, final ScriptContext scriptContext, final Bindings bindings)
-        throws ScriptException {
+//    public Object evalCompiledPrivileged(final CompiledScript cs, final ScriptContext scriptContext, final Bindings bindings)
+//        throws ScriptException {
+//
+//        final ScriptEngineOperation op = new EvaluateCompiledOperation(cs, scriptContext,bindings);
+//        return executeSandboxedOperationUnasserted(op);
+//    }
 
-        final ScriptEngineOperation op = new EvaluateCompiledOperation(cs, scriptContext,bindings);
-        return executeSandboxedOperationPrivileged(op);
-    }
-
-    protected Object executeSandboxedOperation(ScriptEngineOperation op) throws ScriptCPUAbuseException, ScriptException {
+    protected Object executeSandboxedOperationAsserted(ScriptEngineOperation op) throws ScriptCPUAbuseException, ScriptException {
         if (!engineAsserted) {
             assertScriptEngine();
         }
-        return executeSandboxedOperationPrivileged(op);
+        return executeSandboxedOperationUnasserted(op);
     }
 
-    protected Object executeSandboxedOperationPrivileged(ScriptEngineOperation op)
+    protected Object executeSandboxedOperationUnasserted(ScriptEngineOperation op)
 			throws ScriptCPUAbuseException, ScriptException {
-		//assertScriptEngine();
 		try {
 			if (maxCPUTime == 0 && maxMemory == 0) {
 				return op.executeScriptEngineOperation(scriptEngine);
@@ -502,7 +500,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 						throws ScriptException, NoSuchMethodException {
 					InvokeOperation op = new InvokeOperation(thiz, name, args);
 					try {
-						return executeSandboxedOperation(op);
+						return executeSandboxedOperationAsserted(op);
 					} catch (ScriptException e) {
 						throw e;
 					} catch (Exception e) {
@@ -515,7 +513,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 						throws ScriptException, NoSuchMethodException {
 					InvokeOperation op = new InvokeOperation(null, name, args);
 					try {
-						return executeSandboxedOperation(op);
+						return executeSandboxedOperationAsserted(op);
 					} catch (ScriptException e) {
 						throw e;
 					} catch (Exception e) {
