@@ -45,7 +45,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 
 	protected final SandboxClassFilter sandboxClassFilter = new SandboxClassFilter();
 
-	protected final NashornScriptEngine scriptEngine;
+	protected final ScriptEngine scriptEngine;
 
 	/** Maximum CPU time in milliseconds. */
 	protected long maxCPUTime = 0L;
@@ -71,7 +71,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 
 	protected JsSanitizer sanitizer;
 
-	protected AtomicBoolean engineAsserted;
+    protected boolean engineAsserted;
 
 	protected Invocable lazyInvocable;
 
@@ -97,18 +97,18 @@ public class NashornSandboxImpl implements NashornSandbox {
 						"The engine parameter --no-java is not supported. Using it would interfere with the injected code to test for infinite loops.");
 			}
 		}
-		this.scriptEngine = (NashornScriptEngine)(engine == null
+		this.scriptEngine = engine == null
                         ? new NashornScriptEngineFactory().getScriptEngine(params, this.getClass().getClassLoader(),
                                 this.sandboxClassFilter)
-                        : engine);
+                        : engine;
 		this.maxPreparedStatements = 0;
 		this.allow(InterruptTest.class);
-		this.engineAsserted = new AtomicBoolean(false);
+        this.engineAsserted = false;
 	}
 
 	private synchronized void assertScriptEngine() {
 		try {
-			if (!engineAsserted.get()) {
+            if (!engineAsserted) {
 				produceSecureBindings();
 			} else if (!engineBindingUnchanged()) {
 				resetEngineBindings();
@@ -157,7 +157,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 
 			resetEngineBindings();
 
-			engineAsserted.set(true);
+            engineAsserted=true;
 
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
@@ -241,8 +241,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 
     @Override
     public CompiledScript compile(final String js) throws ScriptException {
-        if (!engineAsserted.get()) {
-            engineAsserted.set(true);
+        if (!engineAsserted) {
             assertScriptEngine();
         }
 
@@ -254,7 +253,7 @@ public class NashornSandboxImpl implements NashornSandbox {
             LOG.debug(securedJs);
             LOG.debug("--- JS END ---");
         }
-        return scriptEngine.compile(securedJs);
+        return ((NashornScriptEngine)scriptEngine).compile(securedJs);
     }
 
     public CompiledScript compilePrivileged(final String js) throws ScriptException {
@@ -267,7 +266,7 @@ public class NashornSandboxImpl implements NashornSandbox {
             LOG.debug(securedJs);
             LOG.debug("--- JS END ---");
         }
-        return scriptEngine.compile(securedJs);
+        return ((NashornScriptEngine)scriptEngine).compile(securedJs);
     }
 
     @Override
@@ -289,8 +288,7 @@ public class NashornSandboxImpl implements NashornSandbox {
     public Object evalCompiled(final CompiledScript cs, final ScriptContext scriptContext, final Bindings bindings)
         throws ScriptException {
 
-        if (!engineAsserted.get()) {
-            engineAsserted.set(true);
+        if (!engineAsserted) {
             assertScriptEngine();
         }
 
@@ -305,9 +303,8 @@ public class NashornSandboxImpl implements NashornSandbox {
         return executeSandboxedOperationPrivileged(op);
     }
 
-    private Object executeSandboxedOperation(ScriptEngineOperation op) throws ScriptCPUAbuseException, ScriptException {
-        if (!engineAsserted.get()) {
-            engineAsserted.set(true);
+    protected Object executeSandboxedOperation(ScriptEngineOperation op) throws ScriptCPUAbuseException, ScriptException {
+        if (!engineAsserted) {
             assertScriptEngine();
         }
         return executeSandboxedOperationPrivileged(op);
@@ -424,7 +421,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 
 	@Override
 	public void allowPrintFunctions(final boolean v) {
-		if (engineAsserted.get()) {
+        if (engineAsserted) {
 			throw new IllegalStateException("Please set this property before calling eval.");
 		}
 		allowPrintFunctions = v;
@@ -432,7 +429,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 
 	@Override
 	public void allowReadFunctions(final boolean v) {
-		if (engineAsserted.get()) {
+        if (engineAsserted) {
 			throw new IllegalStateException("Please set this property before calling eval.");
 		}
 		allowReadFunctions = v;
@@ -440,7 +437,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 
 	@Override
 	public void allowLoadFunctions(final boolean v) {
-		if (engineAsserted.get()) {
+        if (engineAsserted) {
 			throw new IllegalStateException("Please set this property before calling eval.");
 		}
 		allowLoadFunctions = v;
@@ -448,7 +445,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 
 	@Override
 	public void allowExitFunctions(final boolean v) {
-		if (engineAsserted.get()) {
+        if (engineAsserted) {
 			throw new IllegalStateException("Please set this property before calling eval.");
 		}
 		allowExitFunctions = v;
@@ -456,7 +453,7 @@ public class NashornSandboxImpl implements NashornSandbox {
 
 	@Override
 	public void allowGlobalsObjects(final boolean v) {
-		if (engineAsserted.get()) {
+        if (engineAsserted) {
 			throw new IllegalStateException("Please set this property before calling eval.");
 		}
 		allowGlobalsObjects = v;
